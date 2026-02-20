@@ -127,6 +127,29 @@ function buyHealth() {
 
 }
 
+function buyWeapon() {
+    if (currentWeapon < weapons.length - 1) {
+        if (gold >= 30) {
+            gold -= 30;
+            currentWeapon++;
+            goldText.innerText = gold;
+            let newWeapon = weapons[currentWeapon].name;
+            inventory.push(newWeapon);
+            text.innerText = "You bought a " + newWeapon + ".";
+            weaponSelect.innerText = newWeapon;
+            text.innerText += " You now have " + inventory.join(", ") + ".";
+        }
+        else {
+            text.innerText = "You don't have enough gold to buy a weapon.";
+        }
+    }
+    else {
+        text.innerText = "You already have the best weapon!";
+    }
+}
+
+
+
 function sellWeapon() {
 
     if (inventory.length > 1) {
@@ -148,6 +171,7 @@ function fightSlime() {
 
 function fightFwend() {
     update(locations[7]);
+
 }
 
 
