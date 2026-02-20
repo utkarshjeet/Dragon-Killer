@@ -40,18 +40,18 @@ const weapons = [
 const monsters = [
     {
         name: "slime",
-        health: 10,
-        power: 2
+        health: 15,
+        level: 2
     },
     {
         name: "fwend",
-        health: 20,
-        power: 5
+        health: 60,
+        level: 8
     },
     {
         name: "dragon",
-        health: 100,
-        power: 10
+        health: 300,
+        level: 20
     }
 ];
 
@@ -76,6 +76,27 @@ const locations = [
         "button text": ["Fight slime", "Fight fwend", "Run"],
         "button functions": [fightSlime, fightFwend, goTown],
         text: "You enter the cave. You see a dragon."
+    },
+
+    {
+        name: "fight",
+        "button text": ["Attack", "Dodge", "Run"],
+        "button functions": [attack, dodge, goTown],
+        text: "You are fighting a monster."
+    },
+
+    {
+        name: "win",
+        "button text": ["Go to Town Square", "Go to Town Square", "Go to Town Square"],
+        "button functions": [goTown, goTown, goTown],
+        text: "The Monster screams 'Arg!' and collapses. You gain XP and Gold ."
+    },
+
+    {
+        name: "lose",
+        "button text": ["Replay?", "Replay?", "Replay?"],
+        "button functions": [restart, restart, restart],
+        text: "You die."
     }
 ];
 
@@ -85,7 +106,7 @@ button3.onclick = fightDragon;
 
 
 function update(location) {
-
+    mosterStats.style.display = "none";
     button1.innerText = location["button text"][0];
     button2.innerText = location["button text"][1];
     button3.innerText = location["button text"][2];
@@ -109,9 +130,6 @@ function goCave() {
     update(locations[2]);
 }
 
-function fightDragon() {
-    update(locations[3]);
-}
 
 function buyHealth() {
 
@@ -145,6 +163,8 @@ function buyWeapon() {
     }
     else {
         text.innerText = "You already have the best weapon!";
+        button2.innerText = "Sell weapon for 15 gold";
+        button2.onclick = sellWeapon;
     }
 }
 
@@ -154,11 +174,10 @@ function sellWeapon() {
 
     if (inventory.length > 1) {
         gold += 15;
-        health -= 10;
         goldText.innerText = gold;
-        healthText.innerText = health;
-        inventory.pop();
-        text.innerText = "You sold your weapon.";
+        let soldWeapon = inventory.shift();
+        text.innerText = "You sold a " + soldWeapon + ".";
+        weaponSelect.innerText = inventory[0];
     }
     else {
         text.innerText = "You don't have a weapon to sell.";
@@ -166,19 +185,62 @@ function sellWeapon() {
 }
 
 function fightSlime() {
-    update(locations[6]);
+    fighting = 0;
+    goFight();
 }
 
 function fightFwend() {
-    update(locations[7]);
+    fighting = 1;
+    goFight();
 
 }
 
 
+function fightDragon() {
+    fighting = 2;
+    goFight();
+}
 
 
+function goFight() {
+    update(locations[3]);
+    monsterHealthText.innerText = monsters[fighting].health;
+    mosterStats.style.display = "block";
+    monsterNameText.innerText = monsters[fighting].name;
+    monsterHealthText.innerText = monsters[fighting].health;
+    monsterStat.innerText = "Level: " + monsters[fighting].level;
+}
 
+function attack() {
+    text.innerText = "The " + monsters[fighting].name + " attacks.";
+    text.innerText += " You attack the " + monsters[fighting].name + " with your " + weapons[currentWeapon].name + ".";
+    monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;
+    health -= monsters[fighting].power + Math.floor(Math.random() * xp) + 1;
+    healthText.innerText = health;
+    monsterHealthText.innerText = monsterHealth;
+    if (health <= 0) {
+        lose();
+    }
+    if (monsterHealth <= 0) {
+        winFight();
+    }
+}
 
+function dodge() {
+    text.innerText = "You dodge the attack from the " + monsters[fighting].name + ".";
+}
 
-
-
+function winFight() {
+    text.innerText = "You defeated the " + monsters[fighting].name + ".";
+    gold += monsters[fighting].level * 10;
+    goldText.innerText = gold;
+    xp += monsters[fighting].level;
+    xpText.innerText = xp;
+    mosterStats.style.display = "none";
+    button1.innerText = "Go to Town Square";
+    button1.onclick = goTown;
+    button2.innerText = "Go to Cave";
+    button2.onclick = goCave;
+    button3.innerText = "Fight Dragon";
+    button3.onclick = fightDragon;
+}
